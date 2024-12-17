@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 # Calculate-Service-go
 Web service on Go
-=======
+
 Calculator Service
 
 Описание
@@ -107,5 +106,3 @@ HTTP-запрос на сервер выглядит так:
 
 http://localhost:8080/api/v1/calculate
 
-ений)
->>>>>>> a8b0e55 (Initial commit: добавлен сервер для вычисл
