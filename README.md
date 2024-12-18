@@ -31,23 +31,23 @@
    cd Calculate-Service-go
 
 # 2. Установите зависимости:
-go mod tidy
+- go mod tidy
 
 # Инструкция по запуску
 Запуск в режиме разработчика
 Запустите сервер:
 
-go run cmd/calc_service/main.go
-Сервер будет доступен по адресу http://localhost:8080/api/v1/calculate
+- go run cmd/calc_service/main.go
+- Сервер будет доступен по адресу http://localhost:8080/api/v1/calculate
 
 # Запуск в режиме пользователя
 1. Соберите бинарный файл:
 
-go build -o calc_service cmd/calc_service/main.go
+- go build -o calc_service cmd/calc_service/main.go
 
 2. Запустите его:
 
-./calc_service
+- ./calc_service
 
 # API
 # POST /calculate
@@ -65,29 +65,15 @@ go build -o calc_service cmd/calc_service/main.go
 
 # Ошибки
 Если выражение некорректно:
-HTTP 400 Internal Server Error
+- HTTP 400 Internal Server Error
 {
   "error": "Internal server error"
 }
-Структура проекта:
-
-/calc_service
-    /cmd
-        /calc_service
-            main.go         # Основной файл для запуска сервера
-    /internal
-        /calculator
-            calculator.go   # Логика обработки выражений
-    /pkg
-        /utils
-            utils.go        # Вспомогательные функции
-    README.md
-    go.mod                # Go модуль
 
 # Тестирование
 Для запуска тестов используйте:
 
-go test -v ./...
+- go test -v ./...
 Тесты проверяют корректность вычислений, обработку ошибок и работу API.
 
 # Пример кода
@@ -101,7 +87,3 @@ curl -X POST http://localhost:8080/calculate \
 {
   "result": 25
 }
-
-# Ссылки:
-Репозиторий на GitHub
-Документация по Go
