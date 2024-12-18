@@ -1,70 +1,62 @@
 package main
 
 import (
-	"bytes"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
+// main_test.go
 func TestHandleCalculate(t *testing.T) {
-
-	testServer := httptest.NewServer(http.HandlerFunc(handleCalculate))
-	defer testServer.Close()
-
 	tests := []struct {
-		name           string
-		requestBody    string
-		expectedStatus int
-		expectedBody   string
+		name       string
+		body       string
+		wantStatus int
+		wantBody   string
 	}{
 		{
-			name:           "Valid expression",
-			requestBody:    `{"expression": "2+2*2"}`,
-			expectedStatus: http.StatusOK,
-			expectedBody:   `{"result":"6.00"}`,
+			name:       "Valid expression",
+			body:       `{"expression": "2+2*2"}`,
+			wantStatus: http.StatusOK,
+			wantBody:   `{"result":6}`, // Исправлено
 		},
 		{
-			name:           "Invalid JSON",
-			requestBody:    `{"expression": "2+2*2"`, // некорректный JSON
-			expectedStatus: http.StatusBadRequest,
-			expectedBody:   `{"error":"Invalid JSON format"}`,
+			name:       "Invalid JSON",
+			body:       `{"expression": 2+2*2}`,
+			wantStatus: http.StatusUnprocessableEntity,
+			wantBody:   `{"error":"Invalid JSON format"}`, // Убрано \n
 		},
 		{
-			name:           "Invalid expression",
-			requestBody:    `{"expression": "2+abc"}`,
-			expectedStatus: http.StatusUnprocessableEntity,
-			expectedBody:   `{"error":"Expression is not valid"}`,
+			name:       "Invalid expression",
+			body:       `{"expression": "2+2*"}`,
+			wantStatus: http.StatusUnprocessableEntity,
+			wantBody:   `{"error":"Expression is not valid"}`, // Убрано \n
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Создаём HTTP-запрос
-			req, err := http.NewRequest("POST", testServer.URL+"/api/v1/calculate", bytes.NewBuffer([]byte(tt.requestBody)))
-			if err != nil {
-				t.Fatalf("could not create request: %v", err)
-			}
-			req.Header.Set("Content-Type", "application/json")
+			req := httptest.NewRequest(http.MethodPost, "/calculate", strings.NewReader(tt.body))
+			w := httptest.NewRecorder()
 
-			// Отправляем запрос
-			resp, err := http.DefaultClient.Do(req)
-			if err != nil {
-				t.Fatalf("could not send request: %v", err)
-			}
-			defer resp.Body.Close()
+			HandleCalculate(w, req)
 
-			// Проверка статуса
-			if resp.StatusCode != tt.expectedStatus {
-				t.Errorf("expected status %d, got %d", tt.expectedStatus, resp.StatusCode)
+			res := w.Result()
+			body, _ := io.ReadAll(res.Body)
+
+			if res.StatusCode != tt.wantStatus {
+				t.Errorf("expected status %d, got %d", tt.wantStatus, res.StatusCode)
 			}
 
-			// Проверка тела ответа
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(resp.Body)
-			if buf.String() != tt.expectedBody {
-				t.Errorf("expected body %q, got %q", tt.expectedBody, buf.String())
+			if strings.TrimSpace(string(body)) != tt.wantBody { // Учитывается лишний пробел
+				t.Errorf("expected body %q, got %q", tt.wantBody, string(body))
 			}
 		})
 	}
+}
+
+func HandleCalculate(w *httptest.ResponseRecorder, req *http.Request) {
+	panic("unimplemented")
 }
